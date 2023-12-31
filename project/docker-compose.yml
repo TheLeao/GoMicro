@@ -1,0 +1,110 @@
+version: '4.18.0'
+
+services:
+
+  broker-service:
+    build:
+      context: ./../broker-service
+      dockerfile: ./../broker-service/broker-service.dockerfile
+    restart: always
+    ports:
+      - "8080:80"
+    deploy:
+      mode: replicated
+      replicas: 1
+  
+  authentication-service:
+    build:
+      context: ./../authentication-service
+      dockerfile: ./../authentication-service/authentication-service.dockerfile
+    restart: always
+    ports:
+      - "8081:80"
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      DbServer: "host.docker.internal"
+      DbPort: 1433
+      DbUser: "sa"
+      Password: "senhaSQLSERVER1@"
+      Database: "GoMicro"
+
+  logger-service:
+    build:
+      context: ./../logger-service
+      dockerfile: ./../logger-service/logger-service.dockerfile
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+
+  mail-service:
+    build:
+      context: ./../mail-service
+      dockerfile: ./../mail-service/mail-service.dockerfile
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      MAIL_DOMAIN: localhost
+      MAIL_HOST: mailhog
+      MAIL_PORT: 1025
+      MAIL_ENCRYPTION: none
+      MAIL_USERNAME: ""
+      MAIL_PASSWORD: ""
+      FROM_NAME: "Dohn Joe"
+      FROM_ADDRESS: dohn.joe@example.com
+
+  # listerner-service:
+  #   build: 
+  #     context: ./../listener-service
+  #     dockerfile: ./../listener-service/listener-service.dockerfile
+  #   restart: always
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 1
+
+  sqldata:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - SA_PASSWORD=senhaSQLSERVER1@
+      - ACCEPT_EULA=Y
+    ports:
+      - "1433:1433"
+    deploy:
+      mode: replicated
+      replicas: 1
+    volumes:
+      - C:\dados\volumes\sqlserver:/var/opt/mssql/data
+
+  mongo:
+    image: "mongo:4.2.17-bionic"
+    ports:
+      - "27018:27017"
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      MONGO_INITDB_DATABASE: "logs"
+      MONGO_INITDB_ROOT_USERNAME: "admin"
+      MONGO_INITDB_ROOT_PASSWORD: "password"
+    volumes:
+      - ./db-data/mongo/:/data/db
+
+  mailhog:
+    image: "mailhog/mailhog:latest"
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+  rabbitmq:
+    image: "rabbitmq:3.12-rc-alpine"
+    ports:
+      - "5672:5672"
+    deploy:
+      mode: global
+      replicas: 1
+    volumes:
+      - ./db-data/rabbitmq/:/var/lib/rabbitmq
