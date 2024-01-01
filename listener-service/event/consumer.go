@@ -21,7 +21,7 @@ type Consumer struct{
 
 type Payload struct {
 	Name string `json:"name"`
-	Data string `json:"name"`
+	Data string `json:"data"`
 }
 
 func NewConsumer(conn *amqp.Connection) (Consumer, error) {
@@ -99,19 +99,19 @@ func (c *Consumer) Listen(topics []string) error {
 
 func handlePayload(p Payload) {
 	// situations based on our own scenario
-	switch p.Name {
-	case "log", "event":
-		// log the 
-		err := logEvent(p) 
-		if err != nil {
+	// switch p.Name {
+	// case "log", "event":
+	// 	// log the 
+	// 	err := logEvent(p) 
+	// 	if err != nil {
 
-		}
-	case "auth":
-		// authenticate
+	// 	}
+	// case "auth":
+	// 	// authenticate
 
-	default:
+	// default:
 
-	}
+	// }
 }
 
 func logEvent(p Payload) error {
